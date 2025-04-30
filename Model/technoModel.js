@@ -4,6 +4,7 @@ const technoSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Technology must have a name'],
+    minlength: [5, 'Technology name must be at least 5 characters'],
     unique: true,
   },
   description: {

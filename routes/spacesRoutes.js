@@ -1,17 +1,29 @@
 const express = require('express');
+const spaceController = require('../Controller/spaceController');
+const authController = require('../Controller/authController');
 
 const router = express.Router();
-
-const spaceController = require('../Controller/spaceController');
 
 router
   .route('/')
   .get(spaceController.getAllSpaces)
-  .post(spaceController.createSpace);
+  .post(
+    authController.protect,
+    authController.restrictTo('admin'),
+    spaceController.createSpace
+  );
 router
   .route('/:id')
   .get(spaceController.getSpace)
-  .patch(spaceController.updateSpace)
-  .delete(spaceController.deleteSpace);
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    spaceController.updateSpace
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin'),
+    spaceController.deleteSpace
+  );
 
 module.exports = router;

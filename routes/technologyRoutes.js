@@ -1,14 +1,28 @@
 const express = require('express');
-const router = express.Router();
-const technologyController = require('../Controller/technologyController');
 
+const technologyController = require('../Controller/technologyController');
+const authController = require('../Controller/authController');
+
+const router = express.Router();
 router
   .route('/')
   .get(technologyController.getAllTechnologies)
-  .post(technologyController.createTechnology);
+  .post(
+    authController.protect,
+    authController.restrictTo('admin'),
+    technologyController.createTechnology
+  );
 router
   .route('/:id')
   .get(technologyController.getTechnology)
-  .patch(technologyController.updateTechnology)
-  .delete(technologyController.deleteTechnology);
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    technologyController.updateTechnology
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin'),
+    technologyController.deleteTechnology
+  );
 module.exports = router;
