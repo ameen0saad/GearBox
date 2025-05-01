@@ -23,9 +23,9 @@ exports.getAllContact = catchAsync(async (req, res, next) => {
 
 // TODO : Get a single contact
 exports.getContact = catchAsync(async (req, res, next) => {
-  const contact = await Contcact.findById(req.params.id);
+  const contact = await Contact.findById(req.params.id);
   if (!contact) return next(new AppError('No contact found with that ID', 404));
-  res.srtatus(200).json({
+  res.status(200).json({
     status: 'success',
     data: { contact },
   });

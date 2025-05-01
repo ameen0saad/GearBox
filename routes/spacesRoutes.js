@@ -1,6 +1,7 @@
 const express = require('express');
 const spaceController = require('../Controller/spaceController');
 const authController = require('../Controller/authController');
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
 
@@ -26,4 +27,5 @@ router
     spaceController.deleteSpace
   );
 
+router.use('/:spaceId/reviews', reviewRouter);
 module.exports = router;
