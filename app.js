@@ -11,7 +11,12 @@ const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -28,7 +33,6 @@ app.use((req, res, next) => {
 });
 app.use('/api/v1/spaces', spacesRouter);
 app.use('/api/v1/users', userRouter);
-// app.use('/api/v1/reviews');
 app.use('/api/v1/technology', technologyRouter);
 app.use('/api/v1/academy', academyRouter);
 app.use('/api/v1/contact', contactRouter);

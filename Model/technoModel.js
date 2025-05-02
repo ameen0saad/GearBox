@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const technoSchema = new mongoose.Schema({
   name: {
@@ -41,6 +42,12 @@ const technoSchema = new mongoose.Schema({
   available: {
     type: Boolean,
   },
+  slug: String,
+});
+technoSchema.index({ slug: 1 });
+technoSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
 });
 const Technology = mongoose.model('Technology', technoSchema);
 module.exports = Technology;

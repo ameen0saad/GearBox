@@ -125,44 +125,79 @@ exports.restrictTo =
 
 exports.forgetPassword = catchAsync(async (req, res, next) => {
   const { email } = req.body;
+
   const user = await User.findOne({ email });
   if (!user)
     return next(new AppError('There is no user with this email address', 404));
-  const resetToken = user.createPasswordResetToken();
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  user.passwordResetOTP = crypto.createHash('sha256').update(otp).digest('hex');
+  user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
   await user.save({ validateBeforeSave: false });
 
-  //TODO : Send it to user's email
   try {
-    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
-    await new Email(user, resetURL).sendPasswordReset();
+    await new Email(user, otp).sendPasswordReset();
+
     res.status(200).json({
       status: 'success',
-      message: 'Token sent to email!',
+      message: 'OTP sent to email!',
     });
   } catch (err) {
+    user.passwordResetOTP = undefined;
     user.passwordResetExpires = undefined;
-    user.passwordResetToken = undefined;
     await user.save({ validateBeforeSave: false });
-    return next(new AppError('there was an error please try later', 500));
+
+    return next(
+      new AppError('There was an error, please try again later', 500)
+    );
   }
+});
+exports.verifyOTP = catchAsync(async (req, res, next) => {
+  const { otp } = req.body;
+
+  const hashedOTP = crypto.createHash('sha256').update(otp).digest('hex');
+
+  const user = await User.findOne({
+    passwordResetOTP: hashedOTP,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  if (!user) return next(new AppError('Invalid or expired OTP', 400));
+
+  // Optional: clear OTP here or after password reset
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: '10m',
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'OTP verified',
+    token,
+  });
 });
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
-  const hashedToken = crypto
-    .createHash('sha256')
-    .update(req.params.token)
-    .digest('hex');
-  const user = await User.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() },
-  });
-  if (!user) {
-    return next(new AppError('Token is invalid or has expired', 400));
+  let decoded;
+  try {
+    decoded = jwt.verify(
+      req.headers.authorization.split(' ')[1],
+      process.env.JWT_SECRET
+    );
+  } catch (err) {
+    return next(new AppError('Invalid or expired token', 401));
   }
+
+  const user = await User.findById(decoded.id);
+
+  if (!user) return next(new AppError('User not found', 404));
+
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
-  user.passwordResetToken = undefined;
+  user.passwordResetOTP = undefined;
   user.passwordResetExpires = undefined;
+
   await user.save();
 
   createSendToken(user, 200, res);

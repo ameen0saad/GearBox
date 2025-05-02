@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const spaceSchema = new mongoose.Schema(
   {
@@ -24,19 +25,30 @@ const spaceSchema = new mongoose.Schema(
     ratingsQuantity: {
       type: Number,
     },
-    image: {
+    imageCover: {
       type: String,
       required: [true, 'Spaces must have images'],
+    },
+    images: {
+      type: [String],
     },
     available: {
       type: Boolean,
     },
+    slug: String,
   },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
+
+spaceSchema.index({ slug: 1 });
+
+spaceSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
 
 spaceSchema.virtual('reviews', {
   ref: 'Review',

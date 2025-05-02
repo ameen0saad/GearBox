@@ -10,7 +10,9 @@ router.route('/login').post(authController.login);
 router.get('/logout', authController.logout);
 
 router.route('/forgotPassword').post(authController.forgetPassword);
-router.route('/resetPassword/:token').patch(authController.resetPassword);
+router.route('/verifyOTP').post(authController.verifyOTP);
+
+router.route('/resetPassword').patch(authController.resetPassword);
 
 router.use(authController.protect);
 

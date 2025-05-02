@@ -59,10 +59,11 @@ module.exports = class Email {
     );
     const html = templatePasswordReset
       .replace(/{{firstName}}/g, this.firstName)
-      .replace(/{{url}}/g, this.url);
+      .replace(/{{otp}}/g, this.url);
+    console.log(html);
     await this.send(
       html,
-      'Your password reset token (valid for only 10 minutes)'
+      'Your OTP to reset password (valid for only 10 minutes)'
     );
   }
 };
