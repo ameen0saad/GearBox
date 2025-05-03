@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const path = require('path');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./Controller/errorController');
 const technologyRouter = require('./routes/technologyRoutes');
@@ -12,9 +13,12 @@ const reviewRouter = require('./routes/reviewRoutes');
 const packageRouter = require('./routes/packageRoutes');
 
 const app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:5500', 'http://127.0.0.1:5500'],
     credentials: true,
   })
 );
