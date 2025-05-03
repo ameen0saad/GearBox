@@ -3,10 +3,18 @@ const ApiFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
-exports.setSpaceUserIds = (req, res, next) => {
-  if (!req.body.user) req.body.user = req.user.id;
-  if (!req.body.space) req.body.reviewable = req.params.spaceId;
-  req.body.onModel = 'Space';
+exports.setSpaceOrPackageUserIds = (req, res, next) => {
+  if (req.baseUrl.match(/spaces/)) {
+    if (!req.body.user) req.body.user = req.user.id;
+    if (!req.body.space) req.body.reviewable = req.params.spaceId;
+    req.body.onModel = 'Space';
+  }
+  if (req.baseUrl.match(/packages/)) {
+    if (!req.body.user) req.body.user = req.user.id;
+    if (!req.body.package) req.body.reviewable = req.params.packageId;
+    req.body.onModel = 'Package';
+  }
+
   next();
 };
 

@@ -20,6 +20,12 @@ const packageSchema = new mongoose.Schema({
     ref: 'Space',
     required: [true, 'A package must belong to a space'],
   },
+  ratingsAverage: Number,
+
+  ratingsQuantity: {
+    type: Number,
+    default: 0,
+  },
   Technology: [
     {
       type: mongoose.Schema.ObjectId,
@@ -32,6 +38,7 @@ const packageSchema = new mongoose.Schema({
     default: Date.now(),
   },
 });
+
 packageSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();

@@ -28,5 +28,5 @@ router
     authController.restrictTo('admin'),
     packageController.deletePackage
   );
-router.use('/packageId/reviews', reviewRouter);
+router.use('/:packageId/reviews', reviewRouter);
 module.exports = router;

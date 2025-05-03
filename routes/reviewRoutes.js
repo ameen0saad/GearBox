@@ -10,7 +10,7 @@ router
   .get(reviewController.getAllReviews)
   .post(
     authController.restrictTo('user'),
-    reviewController.setSpaceUserIds,
+    reviewController.setSpaceOrPackageUserIds,
     reviewController.createReview
   );
 router
