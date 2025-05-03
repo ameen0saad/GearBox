@@ -4,14 +4,14 @@ const technologyController = require('../Controller/technologyController');
 const authController = require('../Controller/authController');
 
 const router = express.Router();
-router
-  .route('/')
-  .get(technologyController.getAllTechnologies)
-  .post(
-    authController.protect,
-    authController.restrictTo('admin'),
-    technologyController.createTechnology
-  );
+router.route('/').get(technologyController.getAllTechnologies).post(
+  authController.protect,
+  authController.restrictTo('admin'),
+  technologyController.uploadTechnologyImages,
+  technologyController.resizeTechnologyImages,
+
+  technologyController.createTechnology
+);
 router
   .route('/:id')
   .get(technologyController.getTechnology)

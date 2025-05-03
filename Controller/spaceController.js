@@ -27,7 +27,7 @@ exports.uploadSpaceImages = upload.fields([
 ]);
 
 exports.resizeSpaceImages = catchAsync(async (req, res, next) => {
-  if (!req.files.imageCover || !req.files.images) return next();
+  if (!req.files || !req.files.imageCover || !req.files.images) return next();
 
   const spaceId = req.params.id || 'new';
   req.body.imageCover = `space-${spaceId}-${Date.now()}.jpeg`;

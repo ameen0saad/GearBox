@@ -53,7 +53,7 @@ spaceSchema.pre('save', function (next) {
 
 spaceSchema.virtual('reviews', {
   ref: 'Review',
-  foreignField: 'space',
+  foreignField: 'reviewable',
   localField: '_id',
 });
 

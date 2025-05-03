@@ -20,7 +20,8 @@ exports.setSpaceOrPackageUserIds = (req, res, next) => {
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
   let filter = {};
-  if (req.params.spaceId) filter = { space: req.params.spaceId };
+  if (req.params.spaceId) filter = { reviewable: req.params.spaceId };
+  if (req.params.packageId) filter = { reviewable: req.params.packageId };
   const features = new ApiFeatures(Review.find(filter), req.query)
     .filter()
     .sort()

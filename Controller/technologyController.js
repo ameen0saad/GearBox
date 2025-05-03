@@ -25,10 +25,10 @@ exports.uploadTechnologyImages = upload.fields([
 ]);
 
 exports.resizeTechnologyImages = catchAsync(async (req, res, next) => {
-  if (!req.files.imageCover || !req.files.images) return next();
+  if (!req.files || !req.files.imageCover || !req.files.images) return next();
 
-  // Cover image
-  req.body.imageCover = `technology-${req.params.id}-${Date.now()}.jpeg`;
+  const technologyId = req.params.id || 'new';
+  req.body.imageCover = `technology-${technologyId}-${Date.now()}.jpeg`;
   await sharp(req.files.imageCover[0].buffer)
     .resize(2000, 1333)
     .toFormat('jpeg')
@@ -39,7 +39,7 @@ exports.resizeTechnologyImages = catchAsync(async (req, res, next) => {
   req.body.images = [];
   await Promise.all(
     req.files.images.map(async (file, i) => {
-      const filename = `technology-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+      const filename = `technology-${technologyId}-${Date.now()}-${i + 1}.jpeg`;
       await sharp(file.buffer)
         .resize(2000, 1333)
         .toFormat('jpeg')

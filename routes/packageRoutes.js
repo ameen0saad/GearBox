@@ -11,6 +11,8 @@ router
   .post(
     authController.protect,
     authController.restrictTo('admin'),
+    packageController.uploadPackageImages,
+    packageController.resizePackageImages,
     packageController.createPackage
   );
 router
