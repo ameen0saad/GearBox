@@ -9,6 +9,7 @@ const academyRouter = require('./routes/academyRoutes');
 const contactRouter = require('./routes/contactRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const packageRouter = require('./routes/packageRoutes');
 
 const app = express();
 app.use(
@@ -37,6 +38,7 @@ app.use('/api/v1/technology', technologyRouter);
 app.use('/api/v1/academy', academyRouter);
 app.use('/api/v1/contact', contactRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/packages', packageRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

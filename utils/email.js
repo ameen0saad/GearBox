@@ -60,7 +60,7 @@ module.exports = class Email {
     const html = templatePasswordReset
       .replace(/{{firstName}}/g, this.firstName)
       .replace(/{{otp}}/g, this.url);
-    console.log(html);
+
     await this.send(
       html,
       'Your OTP to reset password (valid for only 10 minutes)'

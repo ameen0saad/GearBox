@@ -130,8 +130,9 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   if (!user)
     return next(new AppError('There is no user with this email address', 404));
 
+  // TODO : Generate the random OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
+  // TODO : Hash the OTP and set it to the user schema
   user.passwordResetOTP = crypto.createHash('sha256').update(otp).digest('hex');
   user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
@@ -154,6 +155,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
     );
   }
 });
+
 exports.verifyOTP = catchAsync(async (req, res, next) => {
   const { otp } = req.body;
 
@@ -166,7 +168,9 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
 
   if (!user) return next(new AppError('Invalid or expired OTP', 400));
 
-  // Optional: clear OTP here or after password reset
+  user.allowPasswordReset = true;
+  await user.save({ validateBeforeSave: false });
+
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: '10m',
   });
@@ -190,13 +194,16 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   }
 
   const user = await User.findById(decoded.id);
-
   if (!user) return next(new AppError('User not found', 404));
+
+  if (!user.allowPasswordReset)
+    return next(new AppError('Password reset not allowed', 403));
 
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetOTP = undefined;
   user.passwordResetExpires = undefined;
+  user.allowPasswordReset = false;
 
   await user.save();
 

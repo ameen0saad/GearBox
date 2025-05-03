@@ -1,30 +1,32 @@
 const express = require('express');
-
-const technologyController = require('../Controller/technologyController');
 const authController = require('../Controller/authController');
+const packageController = require('../Controller/packageController');
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
+
 router
   .route('/')
-  .get(technologyController.getAllTechnologies)
+  .get(packageController.getAllPackage)
   .post(
     authController.protect,
     authController.restrictTo('admin'),
-    technologyController.createTechnology
+    packageController.createPackage
   );
 router
   .route('/:id')
-  .get(technologyController.getTechnology)
+  .get(packageController.getPackage)
   .patch(
     authController.protect,
     authController.restrictTo('admin'),
-    technologyController.uploadTechnologyImages,
-    technologyController.resizeTechnologyImages,
-    technologyController.updateTechnology
+    packageController.uploadPackageImages,
+    packageController.resizePackageImages,
+    packageController.updatePackage
   )
   .delete(
     authController.protect,
     authController.restrictTo('admin'),
-    technologyController.deleteTechnology
+    packageController.deletePackage
   );
+router.use('/packageId/reviews', reviewRouter);
 module.exports = router;

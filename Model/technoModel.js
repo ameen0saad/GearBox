@@ -35,10 +35,11 @@ const technoSchema = new mongoose.Schema({
       message: 'A discount price {VALUE} must be below the original price',
     },
   },
-  image: {
+  imageCover: {
     type: String,
     required: [true, 'Technologies must have images'],
   },
+  images: [String],
   available: {
     type: Boolean,
   },

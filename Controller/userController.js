@@ -34,10 +34,15 @@ exports.getUser = catchAsync(async (req, res, next) => {
 });
 
 exports.updateUser = catchAsync(async (req, res, next) => {
-  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const { role } = req.body;
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { role },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
   if (!user) {
     return next(new AppError('No user found with that ID', 404));
   }
@@ -48,11 +53,18 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     },
   });
 });
+
 exports.deleteUser = catchAsync(async (req, res, next) => {
-  const user = await User.findByIdAndDelete(req.params.id);
+  const user = await User.findById(req.params.id);
   if (!user) {
     return next(new AppError('No user found with that ID', 404));
   }
+
+  if (user.role === 'admin')
+    return next(new AppError('You can`t delete admin', 404));
+
+  await user.deleteOne();
+
   res.status(204).json({
     status: 'success',
     data: null,

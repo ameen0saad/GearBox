@@ -19,6 +19,8 @@ router
   .patch(
     authController.protect,
     authController.restrictTo('admin'),
+    spaceController.uploadSpaceImages,
+    spaceController.resizeSpaceImages,
     spaceController.updateSpace
   )
   .delete(

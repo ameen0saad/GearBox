@@ -5,7 +5,8 @@ const catchAsync = require('../utils/catchAsync');
 
 exports.setSpaceUserIds = (req, res, next) => {
   if (!req.body.user) req.body.user = req.user.id;
-  if (!req.body.space) req.body.space = req.params.spaceId;
+  if (!req.body.space) req.body.reviewable = req.params.spaceId;
+  req.body.onModel = 'Space';
   next();
 };
 

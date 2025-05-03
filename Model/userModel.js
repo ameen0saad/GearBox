@@ -40,6 +40,7 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetOTP: String,
   passwordResetExpires: Date,
+  allowPasswordReset: Boolean,
   active: {
     type: Boolean,
     default: true,
@@ -71,14 +72,9 @@ userSchema.methods.changedPasswordAfter = (JWTTimestamp) => {
 };
 
 userSchema.methods.createPasswordResetOTP = function () {
-  // 1) Generate OTP (6-digit random number)
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  // 2) Hash the OTP and save it in the database
   this.passwordResetOTP = crypto.createHash('sha256').update(otp).digest('hex');
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes expiration
-
-  // 3) Return the plain OTP to send to the user (unhashed)
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return otp;
 };
 

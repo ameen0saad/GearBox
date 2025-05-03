@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+const Package = require('./packageModel');
 const Space = require('./spacesModel');
 
 const reviewSchema = new mongoose.Schema(
@@ -15,12 +16,17 @@ const reviewSchema = new mongoose.Schema(
     },
     createdAt: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
-    space: {
+    reviewable: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Space',
-      required: [true, 'Review must belong to a tour'],
+      required: [true, 'Review must belong to a Space or Package'],
+      refPath: 'onModel',
+    },
+    onModel: {
+      type: String,
+      required: true,
+      enum: ['Space', 'Package'],
     },
     user: {
       type: mongoose.Schema.ObjectId,
@@ -33,9 +39,8 @@ const reviewSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
-/*
-reviewSchema.index({ space: 1, user: 1 }, { unique: true });
-*/
+
+// Populate user info
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'user',
@@ -44,33 +49,40 @@ reviewSchema.pre(/^find/, function (next) {
   next();
 });
 
-reviewSchema.statics.calcAverageRatings = async function (spaceId) {
+reviewSchema.statics.calcAverageRatings = async function (
+  reviewableId,
+  onModel
+) {
   const stats = await this.aggregate([
     {
-      $match: { space: spaceId },
+      $match: { reviewable: reviewableId, onModel },
     },
     {
       $group: {
-        _id: '$space',
+        _id: '$reviewable',
         nRating: { $sum: 1 },
         avgRating: { $avg: '$rating' },
       },
     },
   ]);
+
+  const Model = onModel === 'Space' ? Space : Package;
+
   if (stats.length > 0) {
-    await Space.findByIdAndUpdate(spaceId, {
+    await Model.findByIdAndUpdate(reviewableId, {
       ratingsQuantity: stats[0].nRating,
       ratingsAverage: stats[0].avgRating,
     });
   } else {
-    await Space.findByIdAndUpdate(spaceId, {
+    await Model.findByIdAndUpdate(reviewableId, {
       ratingsQuantity: 0,
       ratingsAverage: 0,
     });
   }
 };
+
 reviewSchema.post('save', function () {
-  this.constructor.calcAverageRatings(this.space);
+  this.constructor.calcAverageRatings(this.reviewable, this.onModel);
 });
 
 reviewSchema.pre(/^findOneAnd/, async function (next) {
@@ -79,7 +91,13 @@ reviewSchema.pre(/^findOneAnd/, async function (next) {
 });
 
 reviewSchema.post(/^findOneAnd/, async function () {
-  await this.r.constructor.calcAverageRatings(this.r.space);
+  if (this.r) {
+    await this.r.constructor.calcAverageRatings(
+      this.r.reviewable,
+      this.r.onModel
+    );
+  }
 });
+
 const Review = mongoose.model('Review', reviewSchema);
 module.exports = Review;
