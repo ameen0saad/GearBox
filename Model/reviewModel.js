@@ -39,9 +39,9 @@ const reviewSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
 reviewSchema.index({ reviewable: 1, user: 1 }, { unique: true });
 
-// Populate user info
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'user',

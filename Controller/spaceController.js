@@ -29,8 +29,8 @@ exports.uploadSpaceImages = upload.fields([
 exports.resizeSpaceImages = catchAsync(async (req, res, next) => {
   if (!req.files.imageCover || !req.files.images) return next();
 
-  // Cover image
-  req.body.imageCover = `space-${req.params.id}-${Date.now()}.jpeg`;
+  const spaceId = req.params.id || 'new';
+  req.body.imageCover = `space-${spaceId}-${Date.now()}.jpeg`;
   await sharp(req.files.imageCover[0].buffer)
     .resize(2000, 1333)
     .toFormat('jpeg')
@@ -41,7 +41,7 @@ exports.resizeSpaceImages = catchAsync(async (req, res, next) => {
   req.body.images = [];
   await Promise.all(
     req.files.images.map(async (file, i) => {
-      const filename = `space-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+      const filename = `space-${spaceId}-${Date.now()}-${i + 1}.jpeg`;
       await sharp(file.buffer)
         .resize(2000, 1333)
         .toFormat('jpeg')

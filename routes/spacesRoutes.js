@@ -11,6 +11,8 @@ router
   .post(
     authController.protect,
     authController.restrictTo('admin'),
+    spaceController.uploadSpaceImages,
+    spaceController.resizeSpaceImages,
     spaceController.createSpace
   );
 router

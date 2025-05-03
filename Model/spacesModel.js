@@ -6,6 +6,7 @@ const spaceSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'Space must have a name'],
+      unique: true,
     },
     description: {
       type: String,
