@@ -38,6 +38,7 @@ const packageSchema = new mongoose.Schema(
       type: Date,
       default: Date.now(),
     },
+    imageCover: String,
   },
   {
     toJSON: { virtuals: true },
