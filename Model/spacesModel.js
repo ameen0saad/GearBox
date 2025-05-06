@@ -36,6 +36,10 @@ const spaceSchema = new mongoose.Schema(
     available: {
       type: Boolean,
     },
+    price: {
+      type: Number,
+      required: [true, 'Space must have a price'],
+    },
     slug: String,
   },
   {
