@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const Space = require('./spacesModel');
-const User = require('./userModel');
 const Technology = require('./technoModel');
-const slugify = require('slugify');
 
 const customeBookingSchema = new mongoose.Schema({
   user: {
