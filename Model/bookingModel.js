@@ -24,6 +24,10 @@ const bookingSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Booking must have a price'],
   },
+  deliveryDate: {
+    type: Date,
+    default: null,
+  },
   paid: {
     type: Boolean,
     default: true,

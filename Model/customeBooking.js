@@ -16,6 +16,7 @@ const customeBookingSchema = new mongoose.Schema({
   technology: [
     {
       type: mongoose.Schema.ObjectId,
+      ref: 'Technology',
       required: [true, 'Booking must have a technology'],
     },
   ],
@@ -68,10 +69,6 @@ customeBookingSchema.pre(/^find/, function (next) {
   });
   next();
 });
-// customeBookingSchema.pre('save', function (next) {
-//   this.slug = slugify(this.name, { lower: true });
-//   next();
-// });
 
 const customeBooking = mongoose.model('CustomeBooking', customeBookingSchema);
 module.exports = customeBooking;

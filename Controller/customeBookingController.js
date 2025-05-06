@@ -57,3 +57,14 @@ exports.deleteCustomeBooking = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+exports.getMyCustomeBookings = catchAsync(async (req, res, next) => {
+  const customeBookings = await CustomeBooking.find({ user: req.user.id });
+  res.status(200).json({
+    status: 'success',
+    results: customeBookings.length,
+    data: {
+      customeBookings,
+    },
+  });
+});
