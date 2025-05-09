@@ -15,5 +15,5 @@ router.get(
   '/my-custome-bookings',
   customeBookingController.getMyCustomeBookings
 ); // Get all custome bookings for the logged in user
-router.route('/:id').post(customeBookingController.deleteCustomeBooking); // Create a new custome booking
+router.route('/:id').delete(customeBookingController.deleteCustomeBooking); // Create a new custome booking
 module.exports = router;
