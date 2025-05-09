@@ -2,6 +2,12 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const path = require('path');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
+
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./Controller/errorController');
 const technologyRouter = require('./routes/technologyRoutes');
@@ -16,8 +22,19 @@ const customebookingRouter = require('./routes/customeBookingRoutes');
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'Views')));
+app.use(helmet());
+
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests from this IP, please try again later.',
+});
+app.use(limiter);
+
+app.use(hpp({ whitelist: ['sort', 'page', 'limit'] }));
+
+app.use(mongoSanitize());
+app.use(xss());
 
 app.use(
   cors({
@@ -25,6 +42,9 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'Views')));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
