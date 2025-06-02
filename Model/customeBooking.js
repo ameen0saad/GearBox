@@ -17,7 +17,6 @@ const customeBookingSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.ObjectId,
       ref: 'Technology',
-      required: [true, 'Booking must have a technology'],
     },
   ],
   date: {

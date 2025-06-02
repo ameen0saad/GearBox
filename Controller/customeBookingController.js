@@ -2,7 +2,6 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const CustomeBooking = require('../Model/customeBooking');
 const Space = require('../Model/spacesModel');
-const Technology = require('../Model/technoModel');
 
 exports.createCustomeBooking = catchAsync(async (req, res, next) => {
   const { space, technology, date, price } = req.body;
@@ -10,16 +9,14 @@ exports.createCustomeBooking = catchAsync(async (req, res, next) => {
 
   // Check if the space and technology exist
   const spaceExists = await Space.findById(space);
-  const technologyExists = await Technology.findById(technology);
 
   if (!spaceExists) {
     return next(new AppError('Space not found', 404));
   }
-
-  if (!technologyExists) {
-    return next(new AppError('Technology not found', 404));
+  console.log('spaceExists', spaceExists);
+  if (spaceExists.available === false) {
+    return next(new AppError('This space is not available for booking', 400));
   }
-
   // Create the booking
   const booking = await CustomeBooking.create({
     user,
