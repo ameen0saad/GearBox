@@ -76,6 +76,11 @@ exports.getCheckoutSessionCustome = catchAsync(async (req, res, next) => {
 
 exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   const { package, user, price, custome } = req.query;
+  await customeBooking.findByIdAndUpdate(
+    custome,
+    { paid: true },
+    { new: true, runValidators: true }
+  );
   if (custome) {
     await Booking.create({
       user,

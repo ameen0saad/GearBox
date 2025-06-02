@@ -25,7 +25,7 @@ const app = express();
 app.use(helmet());
 
 const limiter = rateLimit({
-  max: 100,
+  max: 1000,
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP, please try again later.',
 });
@@ -42,6 +42,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'Views')));

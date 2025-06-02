@@ -38,7 +38,7 @@ exports.createCustomeBooking = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllCustomeBookings = catchAsync(async (req, res, next) => {
-  const customebookings = await CustomeBooking.find();
+  const customebookings = await CustomeBooking.find({ paid: false });
   res.status(200).json({
     status: 'success',
     results: customebookings.length,
