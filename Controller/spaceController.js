@@ -2,6 +2,7 @@ const multer = require('multer');
 const sharp = require('sharp');
 
 const Space = require('../Model/spacesModel');
+const Booking = require('../Model/bookingModel');
 const ApiFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -51,6 +52,93 @@ exports.resizeSpaceImages = catchAsync(async (req, res, next) => {
     })
   );
   next();
+});
+exports.getSpaceStatus = catchAsync(async (req, res, next) => {
+  const result = await Booking.aggregate([
+    // 1. CustomeBooking bookings
+    {
+      $match: { onModel: 'CustomeBooking' },
+    },
+    {
+      $lookup: {
+        from: 'customebookings',
+        localField: 'booking',
+        foreignField: '_id',
+        as: 'cb',
+      },
+    },
+    { $unwind: '$cb' },
+    {
+      $project: {
+        space: '$cb.space',
+        price: 1,
+      },
+    },
+
+    // 2. Union with Package bookings
+    {
+      $unionWith: {
+        coll: 'bookings',
+        pipeline: [
+          { $match: { onModel: 'Package' } },
+          {
+            $lookup: {
+              from: 'packages',
+              localField: 'booking',
+              foreignField: '_id',
+              as: 'pkg',
+            },
+          },
+          { $unwind: '$pkg' },
+          { $unwind: '$pkg.spaces' },
+          {
+            $project: {
+              space: '$pkg.spaces',
+              price: 1,
+            },
+          },
+        ],
+      },
+    },
+
+    // 3. Group by space
+    {
+      $group: {
+        _id: '$space',
+        totalBookings: { $sum: 1 },
+        totalRevenue: { $sum: '$price' },
+      },
+    },
+
+    // 4. Get space details
+    {
+      $lookup: {
+        from: 'spaces',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'space',
+      },
+    },
+    { $unwind: '$space' },
+
+    // 5. Format output
+    {
+      $project: {
+        _id: 0,
+        spaceId: '$space._id',
+        spaceName: '$space.name',
+        totalBookings: 1,
+        totalRevenue: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      result,
+    },
+  });
 });
 // TODO : Get all spaces
 exports.getAllSpaces = catchAsync(async (req, res, next) => {

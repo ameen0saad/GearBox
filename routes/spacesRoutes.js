@@ -4,6 +4,13 @@ const authController = require('../Controller/authController');
 const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
+router
+  .route('/space-stats')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    spaceController.getSpaceStatus
+  );
 
 router
   .route('/')
