@@ -90,10 +90,10 @@ exports.getSpaceStatus = catchAsync(async (req, res, next) => {
             },
           },
           { $unwind: '$pkg' },
-          { $unwind: '$pkg.spaces' },
+          // هنا استخدم pkg.space مباشرة مش pkg.spaces
           {
             $project: {
-              space: '$pkg.spaces',
+              space: '$pkg.space', // بدل pkg.spaces لأن pkg.space هو ObjectId
               price: 1,
             },
           },
@@ -110,7 +110,7 @@ exports.getSpaceStatus = catchAsync(async (req, res, next) => {
       },
     },
 
-    // 4. Get space details
+    // 4. Lookup space details
     {
       $lookup: {
         from: 'spaces',
@@ -121,7 +121,7 @@ exports.getSpaceStatus = catchAsync(async (req, res, next) => {
     },
     { $unwind: '$space' },
 
-    // 5. Format output
+    // 5. Project final output
     {
       $project: {
         _id: 0,
